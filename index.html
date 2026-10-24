@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Alunos</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #EAF0F4;
+            margin: 0;
+            padding: 40px 20px;
+            color: #252744;
+        }
+
+        h1 {
+            text-align: center;
+            color: #163A4A;
+            margin-bottom: 25px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #163A4A;
+            font-size: 22px;
+            margin: 0 0 20px;
+        }
+
+        form {
+            background: #ffffff;
+            max-width: 500px;
+            margin: 25px auto 35px;
+            padding: 30px;
+            border: 1px solid #D5DEE5;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(22, 58, 74, 0.08);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #39365f;
+            font-size: 14px;
+            font-weight: bold;
+          }
+
+        input {
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border: 1px solid #C7D4DE;
+            border-radius: 9px;
+            background: #F8FAFC;
+            color: #263D4A;
+            font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #245B75;
+            box-shadow: 0 0 0 3px rgba(36, 91, 117, 0.14);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #163A4A;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #245B75;
+        }
+
+        #mensagem {
+            max-width: 450px;
+            margin: 15px auto;
+            font-weight: bold;
+          }
+
+        .sucesso {
+            color: #16803c;
+        }
+
+        #listaAlunos {
+            max-width: 450px;
+            margin: 0 auto;
+            padding-left: 45px;
+            color: #163A4A;
+        }
+
+        li {
+            background: #FFFFFF;
+            color: #163A4A;
+            border: 1px solid #D5DEE5;
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 7px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            overflow-wrap: anywhere;
+        }
+
+        .erro {
+            color: #d62828;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <h1>Cadastro de Alunos</h1>
+
+    <form id="formulario" novalidate>
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" placeholder="Ex: Mariana" required>
+
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" placeholder="exemplo@gmail.com" required>
+
+        <label for="ra">Registro Acadêmico (6 números):</label>
+        <input type="text" id="ra" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="Ex: 111111" required>
+
+        <label for="idade">Idade:</label>
+        <input type="number" id="idade" min="16" max="100" placeholder="Ex: 16" required>
+
+        <button type="submit">Enviar cadastro</button>
+    </form>
+
+    <p id="mensagem" aria-live="polite"></p>
+
+    <h2>Alunos Cadastrados</h2>
+    <ol id="listaAlunos"></ol>
+
+    <script>
+        // Array que armazena os cadastros enquanto a página está aberta
+        let alunos = [];
+
+        const formulario = document.getElementById("formulario");
+        const lista = document.getElementById("listaAlunos");
+        const mensagem = document.getElementById("mensagem");
+        const emailCampo = document.getElementById("email");
+        const raCampo = document.getElementById("ra");
+        const idadeCampo = document.getElementById("idade");
+
+        formulario.addEventListener("submit", function(event) {
+            // Evita que o formulário recarregue a página
+            event.preventDefault();
+
+            // Lê os valores digitados e remove espaços das extremidades
+            let nome = document.getElementById("nome").value.trim();
+            let email = emailCampo.value.trim();
+            let ra = raCampo.value.trim();
+            let idade = idadeCampo.value.trim();
+
+            // Verifica os dados antes de cadastrar
+            if (nome === "" || email === "" || ra === "" || idade === "") {
+                mensagem.textContent = "Erro: preencha todos os campos.";
+                mensagem.className = "erro";
+            } else if (nome.length < 3) {
+                mensagem.textContent = "Erro: o nome deve ter pelo menos 3 caracteres.";
+                mensagem.className = "erro";
+            } else if (!emailCampo.checkValidity()) {
+                mensagem.textContent = "Erro: digite um e-mail válido.";
+                mensagem.className = "erro";
+            } else if (!raCampo.checkValidity()) {
+                mensagem.textContent = "Erro: o RA deve conter exatamente 6 números.";
+                mensagem.className = "erro";
+            } else if (!idadeCampo.checkValidity()) {
+                mensagem.textContent = "Erro: a idade deve estar entre 16 e 100 anos.";
+                mensagem.className = "erro";
+            } else {
+                // Só chega aqui quando todos os dados são válidos
+                let aluno = {
+                    nome: nome,
+                    email: email,
+                    ra: ra,
+                    idade: Number(idade)
+                };
+
+                alunos.push(aluno);
+
+                // Adiciona o cadastro à lista ordenada no HTML
+                let item = document.createElement("li");
+                item.textContent = nome + " - " + email + " - RA: " + ra + " - Idade: " + idade;
+                lista.appendChild(item);
+
+                mensagem.textContent = "Aluno cadastrado com sucesso!";
+                mensagem.className = "sucesso";
+
+                console.log(alunos);
+                formulario.reset();
+            }
+        });
+    </script>
+
+</body>
+</html>
